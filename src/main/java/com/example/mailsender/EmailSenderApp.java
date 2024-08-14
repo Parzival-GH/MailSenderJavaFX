@@ -8,20 +8,36 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javax.mail.*;
+
+import javax.mail.Message;
 import javax.mail.PasswordAuthentication;
-import javax.mail.internet.*;
-import java.io.*;
-import java.net.*;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import java.io.File;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.util.Properties;
 
+
 public class EmailSenderApp extends Application {
+
 
     @Override
     public void start(Stage primaryStage) {
         TextField emailField = new TextField();
         emailField.setPromptText("Введите адрес электронной почты");
+
+        TextField chatIdField = new TextField();
+        chatIdField.setPromptText("Введите chat_id Telegram");
 
         TextField subjectField = new TextField();
         subjectField.setPromptText("Введите тему");
@@ -52,13 +68,14 @@ public class EmailSenderApp extends Application {
             String email = emailField.getText();
             String subject = subjectField.getText();
             String message = messageArea.getText();
+            String chatId = chatIdField.getText();
 
             if (emailCheckBox.isSelected()) {
                 sendEmail(email, subject, message, attachment[0]);
             }
 
             if (telegramCheckBox.isSelected()) {
-                sendTelegramMessage("5758857117", message, attachment[0]);
+                sendTelegramMessage(chatId, message, attachment[0]);
             }
 
             if (!emailCheckBox.isSelected() && !telegramCheckBox.isSelected()) {
@@ -70,14 +87,23 @@ public class EmailSenderApp extends Application {
             }
         });
 
-        Image image = new Image("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMBfY0Gh4xPBANZmKnl2TtUCtjQEgXeyVu6g&s");
+        Image image = new Image("https://cdn-icons-png.freepik.com/512/9916/9916040.png");
         ImageView imageView = new ImageView(image);
         imageView.setFitWidth(100);
         imageView.setPreserveRatio(true);
         imageView.setTranslateX(470);
         imageView.setTranslateY(5);
 
-        VBox layout = new VBox(15, imageView, emailField, subjectField, messageArea, attachButton, emailCheckBox, telegramCheckBox, sendButton);
+        VBox layout = new VBox(15,
+                imageView,
+                emailField,
+                chatIdField,
+                subjectField,
+                messageArea,
+                attachButton,
+                emailCheckBox,
+                telegramCheckBox,
+                sendButton);
         Scene scene = new Scene(layout, 1000, 500);
 
         primaryStage.setTitle("Email&Telegram Sender");
@@ -85,7 +111,10 @@ public class EmailSenderApp extends Application {
         primaryStage.show();
     }
 
-    private void sendEmail(String to, String subject, String body, File attachment) {
+    private void sendEmail(String to,
+                           String subject,
+                           String body,
+                           File attachment) {
         String from = "bugucievb@gmail.com";
         final String username = "bugucievb@gmail.com";
         final String password = "ffelamptqbnrdkmr";
@@ -133,6 +162,7 @@ public class EmailSenderApp extends Application {
     public void sendTelegramMessage(String chatId, String message, File attachment) {
         String token = "6849590370:AAGKWXj3y8PVBkiePkuEqSGJ_rrwIDCUTMk";
         String urlString;
+        String charset = "UTF-8";
 
         if (attachment != null) {
             urlString = "https://api.telegram.org/bot" + token + "/sendDocument";
@@ -145,7 +175,6 @@ public class EmailSenderApp extends Application {
             con.setRequestMethod("POST");
             con.setDoOutput(true);
 
-            String charset = null;
             if (attachment != null) {
                 String boundary = Long.toHexString(System.currentTimeMillis());
                 con.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
@@ -183,6 +212,7 @@ public class EmailSenderApp extends Application {
             }
 
             int responseCode = con.getResponseCode();
+            System.out.println("Письмо отправлено успешно !");
             System.out.println("Response Code : " + responseCode);
         } catch (Exception e) {
             e.printStackTrace();
