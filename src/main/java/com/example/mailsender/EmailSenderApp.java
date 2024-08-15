@@ -27,10 +27,7 @@ import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.util.Properties;
 
-
 public class EmailSenderApp extends Application {
-
-
     @Override
     public void start(Stage primaryStage) {
         TextField emailField = new TextField();
@@ -110,7 +107,6 @@ public class EmailSenderApp extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
     }
-
     private void sendEmail(String to,
                            String subject,
                            String body,
@@ -158,7 +154,6 @@ public class EmailSenderApp extends Application {
             e.printStackTrace();
         }
     }
-
     public void sendTelegramMessage(String chatId, String message, File attachment) {
         String token = "6849590370:AAGKWXj3y8PVBkiePkuEqSGJ_rrwIDCUTMk";
         String urlString;
